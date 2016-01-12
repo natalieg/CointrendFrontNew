@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="stylesheets/main.css">
+    <script type="text/javascript" src="javascripts/jquery-1.11.3.js"></script>
+    <!-- choose a theme file -->
+    <link rel="stylesheet" href="bower_components/tablesorter/dist/css/theme.ice.min.css">
+    <script type="text/javascript" src="bower_components/tablesorter/dist/js/jquery.tablesorter.js"></script>
+    <script type="text/javascript" src="javascripts/fetch.js"></script>
+    <!-- tablesorter widgets (optional) -->
+    <script type="text/javascript"
+            src="bower_components/tablesorter/dist/js/jquery.tablesorter.widgets.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <script type="text/javascript" src="javascripts/filter.js"></script>
+    <script type="text/javascript" src="javascripts/filter2.js"></script>
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+</head>
+<body>
+
+<div class="logo">
+
+</div>
+
+<div class="menubar">
+    <nav class="navbar-default navbar">
+        <div class="container-fluid">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">News <span class="sr-only">(current)</span></a></li>
+                <li><a href="#">Charts</a></li>
+            </ul>
+        </div>
+    </nav>
+</div>
+
+<div>
+    <img src="../images/cointrendLogo.png">
+    <div class="chartDiv">
+        <!-- TradingView Widget BEGIN -->
+        <script type="text/javascript" src="https://d33t3vvu2t2yu5.cloudfront.net/tv.js"></script>
+        <script type="text/javascript">
+            new TradingView.widget({
+                "width": 220,
+                "height": 200,
+                "symbol": "FX:SPX500",
+                "interval": "D",
+                "timezone": "Etc/UTC",
+                "theme": "White",
+                "style": "1",
+                "locale": "en",
+                "toolbar_bg": "#f1f3f6",
+                "hide_top_toolbar": true,
+                "allow_symbol_change": true,
+                "save_image": false,
+                "hideideas": true
+            });
+        </script>
+        <!-- TradingView Widget END -->
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+
+        <div class="leftContent col-md-2">
+
+            <h3 class="text-center middleHeadline">Set Filter</h3>
+
+            <div class="well" style="overflow: auto;">
+                <h5 class="text-center setFilterFor">Timestamp</h5>
+                <ul class="list-group checked-list-box">
+                    <li class="list-group-item">Week</li>
+                    <li class="list-group-item" data-checked="true">Month</li>
+                    <li class="list-group-item">Year</li>
+                </ul>
+                <h5 class="text-center setFilterFor">Type</h5>
+                <ul class="list-group checked-list-box">
+                    <li class="list-group-item">Comments</li>
+                    <li class="list-group-item" data-checked="true">Thread</li>
+                    <li class="list-group-item">External Source</li>
+                </ul>
+                <h5 class="text-center setFilterFor">Source</h5>
+                <ul class="list-group checked-list-box">
+                    <li class="list-group-item" data-checked="true">Reddit</li>
+                    <li class="list-group-item">Facebook</li>
+                    <li class="list-group-item">Twitter</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+
+            <div id="middleContent" style="text-align: center">
+                <div class="searchline">
+                    <div class="searchbar" id="searchId">
+                        <form id="search" action="javascript:search();">
+                            <input id="searchbar" type="text" placeholder="Search">
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <div class="resultTableDiv">
+                <select id="selectField">
+                    <option value="All" selected>All</option>
+                    <option value="Twitter">Twitter</option>
+                    <option value="Reddit">Reddit</option>
+                    <option value="Facebook">Facebook</option>
+                </select>
+
+                Filter nach der Art
+                <select id="selectField2">
+                    <option value="All" selected>All</option>
+                    <option value="Kommentar">Kommentar</option>
+                    <option value="Tweet">Tweet</option>
+                    <option value="Post">Post</option>
+                </select>
+                <table id="myTable" class="tablesorter-ice">
+                    <thead>
+                    <tr>
+                        <th>Rating</th>
+                        <th>Article</th>
+                        <th>Timestamp</th>
+                        <th>Source</th>
+                        <th>Relevance</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tablebody">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="rightContent col-md-2">
+        <h3 class="text-center middleHeadline">New Events</h3>
+        <ul class="list-group">
+            <li class="list-group-item"><a>Cras justo odio</a></li>
+            <li class="list-group-item"><a>Dapibus ac facilisis in</a></li>
+            <li class="list-group-item"><a>Morbi leo risus</a></li>
+            <li class="list-group-item"><a>Porta ac consectetur ac</a></li>
+            <li class="list-group-item"><a>Vestibulum at eros</a></li>
+            <li class="list-group-item"><a>Cras justo odio</a></li>
+            <li class="list-group-item"><a>Dapibus ac facilisis in</a></li>
+            <li class="list-group-item"><a>Morbi leo risus</a></li>
+            <li class="list-group-item"><a>Porta ac consectetur ac</a></li>
+            <li class="list-group-item"><a>Vestibulum at eros</a></li>
+        </ul>
+    </div>
+
+</div>
+
+
+<script>
+    function search() {
+//        fetch('http://localhost:9200/live/_search',
+//                {
+//                    method: 'post',
+//                    headers: {
+//                        'Accept': 'application/json',
+//                        'Content-Type': 'application/json'
+//                    },
+//                    body: JSON.stringify(
+//                            {
+//                                "bool": {
+//                                    "should": {
+//                                        "multi_match": {
+//                                            "query": "bitcoin",
+//                                            "fields": ["title", "created", "ups"]
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                    )
+//                }
+//        ).then(function (response) {
+            var filter = document.getElementById('searchbar').value;
+            tableCreate(PRODUCTS, filter);
+//            console.log(response);
+//        })
+    }
+
+    function tableCreate(data, filter){
+    $('#tablebody').empty().append(data.map(function(datum) {
+        return $('<tr>').append([
+            $('<td>', {text: datum.ups}),
+                $('<td>').append($('<a>', {href: datum.linkUrl, text: datum.title})),
+                $('<td>', {text: datum.created}),
+                $('<td>', {text: datum.source}),
+                $('<td>', {text: Math.floor((Math.random() * 10) + 1)})
+        ]);
+    }));
+    }
+
+
+    var PRODUCTS = [{"parentId": "t1_cxr06ky", "submissionId": "t3_3vtxjz", "id": "t1_cxr4occ", "subreddit": "Bitcoin", "ups": 1, "downs": 0, "processed": false, "source": "REDDIT", "title": "Is bitcoin the future ?", "text": "Nothing. Moreover it is a legit use case (e. g. you signed the message, then you moved the BTC from that address since you changed your mind, then you can change your mind again, etc).\n\nBitcoinocracy [fetches signer\u0027s balances time to time](https://github.com/arsenische/bitcoinocracy/blob/master/app/controllers/application_controller.rb) and updates the arguments\u0027 validity accordingly.", "author": "arsenische", "url": "/r/Bitcoin/comments/3vtxjz/satoshi_wanted_the_bitcoin_community_to_vote_on/cxr4occ", "created": 1449546093000},
+        { "linkUrl": "http://bigcharts.marketwatch.com/quickchart/quickchart.asp?symb\u003dgbtc\u0026amp;insttype\u003d\u0026amp;freq\u003d\u0026amp;show\u003d", "totalcomments": 61, "id": "t3_3vvcu3", "subreddit": "Bitcoin", "ups": 143, "downs": 0, "processed": false, "source": "REDDIT", "title": "GBTC up 14.78% today. Now trading at $528 per Bitcoin!", "text": "", "author": "vevue", "url": "/r/Bitcoin/comments/3vvcu3/gbtc_up_1478_today_now_trading_at_528_per_bitcoin/", "created": 1449539014000 },
+        { "linkUrl": "http://lists.linuxfoundation.org/pipermail/bitcoin-dev/2015-December/011865.html", "totalcomments": 103, "id": "t3_3vurqp", "subreddit": "Bitcoin", "ups": 145, "downs": 0, "processed": false, "source": "REDDIT", "title": "Greg Maxwell: Capacity increases for the Bitcoin system", "text": "", "author": "theymos", "url": "/r/Bitcoin/comments/3vurqp/greg_maxwell_capacity_increases_for_the_bitcoin/", "created": 1449530063000 },
+        { "linkUrl": "https://twitter.com/aantonop/status/674106750841266176", "totalcomments": 51, "id": "t3_3vwalg", "subreddit": "Bitcoin", "ups": 98, "downs": 0, "processed": false, "source": "REDDIT", "title": "AndreasMAntonopoulos on Twitter: \"This presentation marks a turning point for #bitcoin Segregated Witness - #segwit\"", "text": "", "author": "smidge", "url": "/r/Bitcoin/comments/3vwalg/andreasmantonopoulos_on_twitter_this_presentation/", "created": 1449554755000 },
+        { "linkUrl": "https://bitcoinmagazine.com/articles/sec-approves-overstock-com-s-filing-to-issue-shares-using-bitcoin-blockchain-1449539558", "totalcomments": 65, "id": "t3_3vvf43", "subreddit": "Bitcoin", "ups": 536, "downs": 0, "processed": false, "source": "REDDIT", "title": "SEC Approves Overstock.com S-3 Filing to Issue Shares Using Bitcoin Blockchain", "text": "", "author": "desantis", "url": "/r/Bitcoin/comments/3vvf43/sec_approves_overstockcom_s3_filing_to_issue/", "created": 1449539999000 },
+        { "linkUrl": "https://www.reddit.com/r/Bitcoin/comments/3vvjap/warning_do_not_do_business_with_cryptsy_they_have/", "totalcomments": 30, "id": "t3_3vvjap", "subreddit": "Bitcoin", "ups": 166, "downs": 0, "processed": false, "source": "REDDIT", "title": "Warning: Do NOT do business with Cryptsy. They have stolen my Bitcoin and are now ignoring my support requests.", "text": "I attempted a withdrawal through Cryptsy a week ago and it\u0027s been in a pending state. When I open support tickets they come back with generic canned responses. It\u0027s quite obvious they are just keeping the money while bitcoin price is high because they don\u0027t have the real funds to back it up.\n\nNow they are ignoring my support requests, but here are some of the canned responses I got at the beginning:\n\n\n\u0026gt; \n\u0026gt; Hello Ben,\n\u0026gt; \n\u0026gt; Thank you for contacting us about this issue.\n\u0026gt; I apologize for the inconvenience this may have caused you. We are experiencing a delay when it comes to processing BTC LTC and BTCD withdrawal transactions. Our technical team is working hard to get the withdrawals moving as fast as they can. Thank you for your patience as we work to resolve this matter.\n\u0026gt; \n\u0026gt; Please note that you also have the option to cancel the transaction while waiting for the issue to be resolved. \n\u0026gt; If you wish to do this, kindly respond to this ticket so I can process a cancellation request for you.\n\u0026gt; \n\u0026gt; \n\u0026gt; Sincerely,\n\u0026gt; \n\nOf course their service page mentions nothing about any outage:\n\nhttps://www.cryptsy.com/pages/status\n\n\n\u0026gt; \n\u0026gt; Thank you for contacting us again. We apologize for the continued problems we are having with some withdrawals. We appreciate your patience as we continue to work on the problem as we hope to have it resolved soon.\n\u0026gt; Some suggestions that are working for \"some\" users\":\n\u0026gt; a) Verify your account to Tier Level 2\n\u0026gt; b) Request a cancellation of transaction and try making them in smaller amounts.\n\u0026gt; Again we thank you for your patience as we try to resolve the technical problems we are having.", "author": "ben174", "url": "/r/Bitcoin/comments/3vvjap/warning_do_not_do_business_with_cryptsy_they_have/", "created": 1449541748000 },
+        { "linkUrl": "https://www.reddit.com/r/Bitcoin/comments/3vtxjz/satoshi_wanted_the_bitcoin_community_to_vote_on/", "totalcomments": 47, "id": "t3_3vtxjz", "subreddit": "Bitcoin", "ups": 88, "downs": 0, "processed": false, "source": "REDDIT", "title": "Satoshi wanted the Bitcoin community to vote on what the Dev team does. We are supposed to be the miners.", "text": "Thought experiment. Tell me if this is incorrect. \n\nI\u0027ve been toiling over why in Gods name Satoshi would\u0027ve made the decision to give some random Chinese dudes with warehouses the authority to make all the decisions for bitcoin. Why would they know more than the collective hive-mind of the entire Bitcoin ecosystem? \n\nIt simply made no sense. \n\nThen the most obvious thing struck me: Satoshi wanted you, me, and everyone involved in Bitcoin, mining on our PC\u0027s. And it is *us* who are supposed to be casting the votes on what the Dev team is supposed to do. The power is supposed to be in the hands of the ecosystem. The very group of people who the Dev team has said should have \"no say\". \n\n*Its no surprise that at the Bitcoin scaling conference this week, the 10 people running the mining pools explicitly stated they don\u0027t want to make the decision, because they\u0027re not qualified to.*\n\nSatoshi did not envision decisions in bitcoin being made by core developers. And consensus was supposed to come from a large volume of individuals from across the ecosystem. Decisions were supposed to be made by us. ", "author": "BitttBurger", "url": "/r/Bitcoin/comments/3vtxjz/satoshi_wanted_the_bitcoin_community_to_vote_on/", "created": 1449518361000 },
+        { "parentId": "t1_cxrqqwb", "submissionId": "t3_3vxzjy", "id": "t1_cxrut1d", "subreddit": "Bitcoin", "ups": 1, "downs": 0, "processed": false, "source": "REDDIT", "title": "Crazy bit coins", "text": "Best bitcoin post ever, a must see!!!!", "author": "sumBTC", "url": "/r/Bitcoin/comments/3vxzjy/fun_fact_now_that_comments_wont_collapse_anymore/cxrut1d", "created": 1449602429000 },
+        { "parentId": "t1_cxr52pw", "submissionId": "t3_3vvcu3", "id": "t1_cxr5plp", "subreddit": "Bitcoin", "ups": 1, "downs": 0, "processed": false, "source": "REDDIT", "title": "What goes around comes around coins", "text": "http://grayscale.co/bitcoin-investment-trust/\n", "author": "cyber_numismatist", "url": "/r/Bitcoin/comments/3vvcu3/gbtc_up_1478_today_now_trading_at_528_per_bitcoin/cxr5plp", "created": 1449547729000 },
+        { "parentId": "t1_cxr2g3x", "submissionId": "t3_3vvcu3", "id": "t1_cxr2vs9", "subreddit": "Bitcoin", "ups": 1, "downs": 0, "processed": false, "source": "REDDIT", "title": "TRADE MORE", "text": "I thought they weren\u0027t going to use bitcoin blockchain", "author": "rbhmmx", "url": "/r/Bitcoin/comments/3vvcu3/gbtc_up_1478_today_now_trading_at_528_per_bitcoin/cxr2vs9", "created": 1449543305000 },
+        { "parentId": "t1_cxr382g", "submissionId": "t3_3vvjap", "id": "t1_cxr4wrf", "subreddit": "Bitcoin", "ups": 1, "downs": 0, "processed": false, "source": "REDDIT", "title": "Should i buy even more or sell ?", "text": "Everyone\u0027s score is hidden in /r/bitcoin now.", "author": "trwww", "url": "/r/Bitcoin/comments/3vvjap/warning_do_not_do_business_with_cryptsy_they_have/cxr4wrf", "created": 1449546470000 }
+    ]
+</script>
+</body>
+</html>
