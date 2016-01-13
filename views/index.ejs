@@ -170,7 +170,6 @@
         }).then(function (json) {
             var data = json['hits']['hits'];
             tableCreate(data);
-            console.log("here comes the response/n");
             console.log(data);
             console.log(data[0]['_source']['title']);
         })
