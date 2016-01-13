@@ -161,43 +161,50 @@
 
 <script>
     function search() {
-//        fetch('http://localhost:9200/live/_search',
-//                {
-//                    method: 'post',
-//                    headers: {
-//                        'Accept': 'application/json',
-//                        'Content-Type': 'application/json'
-//                    },
-//                    body: JSON.stringify(
-//                            {
-//                                "bool": {
-//                                    "should": {
-//                                        "multi_match": {
-//                                            "query": "bitcoin",
-//                                            "fields": ["title", "created", "ups"]
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                    )
-//                }
-//        ).then(function (response) {
-            var filter = document.getElementById('searchbar').value;
-            tableCreate(PRODUCTS, filter);
-//            console.log(response);
-//        })
+        var filter = document.getElementById('searchbar').value;
+        fetch('http://82.165.156.193:9200/live/_search',
+                {
+                    method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(
+                            {
+                                "query": {
+                                    "bool": {
+                                        "filter": { "term": { "_type": "reddit_submission" }},
+                                        "should": {
+                                            "multi_match": {
+                                                "query": filter,
+                                                "fields": ["title", "text", "author"]
+                                            }
+                                        }
+                                    }
+                                }
+                            })
+                }
+        ).then(function (response) {
+            return response.json()
+        }).then(function (json) {
+            var data = json['hits']['hits'];
+            tableCreate(data);
+            console.log("here comes the response/n");
+            console.log(data);
+            console.log(data[0]['_source']['title']);
+        })
     }
 
-    function tableCreate(data, filter){
-    $('#tablebody').empty().append(data.map(function(datum) {
-        return $('<tr>').append([
-            $('<td>', {text: datum.ups}),
-                $('<td>').append($('<a>', {href: datum.linkUrl, text: datum.title})),
-                $('<td>', {text: datum.created}),
-                $('<td>', {text: datum.source}),
+    function tableCreate(data) {
+        $('#tablebody').empty().append(data.map(function (data) {
+            return $('<tr>').append([
+                $('<td>', {text: data._source.ups}),
+                $('<td>').append($('<a>', {href: data._source.linkUrl, text: data._source.title})),
+                $('<td>', {text: data._source.created}),
+                $('<td>', {text: data._source.source}),
                 $('<td>', {text: Math.floor((Math.random() * 10) + 1)})
-        ]);
-    }));
+            ]);
+        }));
     }
 
 
