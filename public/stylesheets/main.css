@@ -4,7 +4,8 @@
 .logo {
     z-index: 3;
     float: right;
-    top: 0px padding-left : 10 px;
+    top: 0px;
+    padding-left : 10px;
     padding-right: 20px;
     position: relative;
 }
@@ -27,6 +28,7 @@
 
 }
 
+
 /* Left Content ////////////////////////////////////////////////////////////////////////////////////////////*/
 
 
@@ -34,7 +36,7 @@
 
 /* Search */
 #search {
-    background: white !important;
+    background: lightgray !important;
     padding: 0px !important;
 }
 
@@ -82,6 +84,8 @@
     text-align: center;;
 }
 
+
+
 .navbar-default.navbar {
     background-color: #B4BDC8 !important;
     font-weight: bold;
@@ -100,8 +104,29 @@ output {
     margin-right: 1%;
 }
 
+#filter {
+    font-size: 18px;
+    position: relative;
+    top: 100px;
+    left: -100px;
+    border: 3px solid #000000;
+}
 
+#filterlabel {
+    font-size: 15px;
+    position: relative;
+    top: 100px;
+    left: -42px;
 
+}
+
+#filterlabel2 {
+    font-size: 12px;
+    position: relative;
+    top: 120px;
+    left: -58px;
+
+}
 
 .chartDiv {
     float: right;
@@ -148,33 +173,3 @@ output {
     border-color: rgba(51, 122, 183, 0.35);
 }
 
-#selectField{
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    height: 30px;
-    width: 200px;
-    color:black;
-    background-color: #ff8c00;
-    margin-top:1%;
-}
-#selectField2{
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    height: 30px;
-    width: 200px;
-    color:black;
-    background-color: #ff8c00;
-    margin-top:1%;
-}
-.odd{
-    background:#0073ff;
-}
-.even{
-    background:#0073ff;
-}
