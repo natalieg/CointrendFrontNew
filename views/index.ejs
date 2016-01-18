@@ -20,6 +20,7 @@
     <script type="text/javascript" src="javascripts/filter2.js"></script>
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+ <script type="text/javascript" src="javascripts/Event.js"></script>
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
@@ -121,18 +122,15 @@
         </div>
         <div class="rightContent col-md-2">
             <h3 class="text-center middleHeadline">New Events</h3>
-            <ul class="list-group">
-                <li class="list-group-item"><a>Cras justo odio</a></li>
-                <li class="list-group-item"><a>Dapibus ac facilisis in</a></li>
-                <li class="list-group-item"><a>Morbi leo risus</a></li>
-                <li class="list-group-item"><a>Porta ac consectetur ac</a></li>
-                <li class="list-group-item"><a>Vestibulum at eros</a></li>
-                <li class="list-group-item"><a>Cras justo odio</a></li>
-                <li class="list-group-item"><a>Dapibus ac facilisis in</a></li>
-                <li class="list-group-item"><a>Morbi leo risus</a></li>
-                <li class="list-group-item"><a>Porta ac consectetur ac</a></li>
-                <li class="list-group-item"><a>Vestibulum at eros</a></li>
-            </ul>
+
+
+            //*** Aufruf der Event-Funktion, als komplette Tabelle ohne eigene Zeilen (mit Zeilen id für href-Verlinkung)
+
+                        <table id="ETable" onload="Event()">
+                                            </table>
+
+            //***
+
         </div>
     </div>
 
