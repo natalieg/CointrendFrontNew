@@ -18,7 +18,7 @@ $(function () {
                 }
             };
 
-        $widget.css('cursor', 'pointer')
+        $widget.css('cursor', 'pointer');
         $widget.append($checkbox);
 
         // Event Handlers

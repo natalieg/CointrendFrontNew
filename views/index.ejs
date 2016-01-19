@@ -13,11 +13,9 @@
     <script type="text/javascript"
             src="bower_components/tablesorter/dist/js/jquery.tablesorter.widgets.js"></script>
     <script type="text/javascript" src="javascripts/tableSort.js"></script>
-    <script type="text/javascript" src="javascripts/checkbox.js"></script>
+
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-    <script type="text/javascript" src="javascripts/filter.js"></script>
-    <script type="text/javascript" src="javascripts/filter2.js"></script>
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
@@ -62,9 +60,12 @@
                 </ul>
                 <h5 class="text-center setFilterFor">Type</h5>
                 <ul class="list-group checked-list-box">
-                    <li class="list-group-item">Comments</li>
-                    <li class="list-group-item" data-checked="true">Thread</li>
-                    <li class="list-group-item">External Source</li>
+                    <li  class="list-group-item">
+                        <input type="checkbox" id="filterTypeComments" onchange="search()"/>Comments</li>
+                    <li class="list-group-item">
+                        <input type="checkbox" id="filterTypeThread" onchange="search()" />Thread</li>
+                    <li class="list-group-item">
+                        <input type="checkbox" id="filterTypeExternal" onchange="search()"/>External Source</li>
                 </ul>
                 <h5 class="text-center setFilterFor">Source</h5>
                 <ul class="list-group checked-list-box">
@@ -89,21 +90,7 @@
                 </div>
             </div>
             <div class="resultTableDiv">
-                <select id="selectField">
-                    <option value="All" selected>All</option>
-                    <option value="Twitter">Twitter</option>
-                    <option value="Reddit">Reddit</option>
-                    <option value="Facebook">Facebook</option>
-                </select>
-
-                Filter nach der Art
-                <select id="selectField2">
-                    <option value="All" selected>All</option>
-                    <option value="Kommentar">Kommentar</option>
-                    <option value="Tweet">Tweet</option>
-                    <option value="Post">Post</option>
-                </select>
-                <table id="myTable" class="tablesorter-ice">
+               <table id="myTable" class="tablesorter-ice">
                     <thead>
                     <tr>
                         <th>Rating</th>
@@ -142,8 +129,16 @@
 
 
 <script>
+
     function search() {
-        var filter = document.getElementById('searchbar').value;
+
+        // Hier wird momentan nur abgelegt, welche der Filterkomponenten "true" sind
+        // TODO Einbindung in das Script
+        var filteredTypeComments = document.getElementById('filterTypeComments').value;
+        var filteredTypeThread = document.getElementById('filterTypeThread').value;
+        var filteredTypeExternal = document.getElementById('filterTypeExternal').value;
+
+        var filterRequest = document.getElementById('searchbar').value;
         fetch('http://82.165.156.193:9200/live/_search',
                 {
                     method: 'post',
@@ -155,10 +150,10 @@
                             {
                                 "query": {
                                     "bool": {
-                                        "filter": { "term": { "_type": "reddit_submission" }},
+                                        "filter": { "term": { "_type": "reddit_submission" || "reddit_comment"}},
                                         "should": {
                                             "multi_match": {
-                                                "query": filter,
+                                                "query": filterRequest,
                                                 "fields": ["title", "text", "author"]
                                             }
                                         }
@@ -181,6 +176,7 @@
             return $('<tr>').append([
                 $('<td>', {text: data._source.ups}),
                 $('<td>').append($('<a>', {href: data._source.linkUrl, text: data._source.title})),
+                    // Datum TODO Converter
                 $('<td>', {text: data._source.created}),
                 $('<td>', {text: data._source.source}),
                 $('<td>', {text: Math.floor((Math.random() * 10) + 1)})
