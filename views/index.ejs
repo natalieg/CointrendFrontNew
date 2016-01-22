@@ -15,13 +15,17 @@
     <script type="text/javascript" src="javascripts/tableSort.js"></script>
 
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
- <script type="text/javascript" src="javascripts/Event.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"
+          integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <script type="text/javascript" src="javascripts/Event.js"></script>
 
     <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+            integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+            crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -61,12 +65,16 @@
                 </ul>
                 <h5 class="text-center setFilterFor">Type</h5>
                 <ul class="list-group checked-list-box">
-                    <li  class="list-group-item">
-                        <input type="checkbox" id="filterTypeComments" onchange="search()"/>Comments</li>
                     <li class="list-group-item">
-                        <input type="checkbox" id="filterTypeThread" onchange="search()" />Thread</li>
+                        <input name="checkbox" type="checkbox" id="reddit_comment" onchange="filter()"/>Comments
+                    </li>
                     <li class="list-group-item">
-                        <input type="checkbox" id="filterTypeExternal" onchange="search()"/>External Source</li>
+                        <input name="checkbox" type="checkbox" id="reddit_submission" onchange="filter()"/>Thread
+                    </li>
+                    <li class="list-group-item">
+                        <input name="checkbox" type="checkbox" id="filterTypeExternal" onchange="filter()"/>External
+                        Source
+                    </li>
                 </ul>
                 <h5 class="text-center setFilterFor">Source</h5>
                 <ul class="list-group checked-list-box">
@@ -91,7 +99,7 @@
                 </div>
             </div>
             <div class="resultTableDiv">
-               <table id="myTable" class="tablesorter-ice">
+                <table id="myTable" class="tablesorter-ice">
                     <thead>
                     <tr>
                         <th>Rating</th>
@@ -111,10 +119,11 @@
             <h3 class="text-center middleHeadline">New Events</h3>
 
 
-            //*** Aufruf der Event-Funktion, als komplette Tabelle ohne eigene Zeilen (mit Zeilen id für href-Verlinkung)
+            //*** Aufruf der Event-Funktion, als komplette Tabelle ohne eigene Zeilen (mit Zeilen id für
+            href-Verlinkung)
 
-                        <table id="ETable" onload="Event()">
-                                            </table>
+            <table id="ETable" onload="Event()">
+            </table>
 
             //***
 
@@ -122,20 +131,80 @@
     </div>
 
 
-
 </div>
 
 
 <script>
 
-    function search() {
-
+    function filter() {
+        // Number of the possible Filters
+        var filterCount = 3;
         // Hier wird momentan nur abgelegt, welche der Filterkomponenten "true" sind
         // TODO Einbindung in das Script
-        var filteredTypeComments = document.getElementById('filterTypeComments').value;
-        var filteredTypeThread = document.getElementById('filterTypeThread').value;
-        var filteredTypeExternal = document.getElementById('filterTypeExternal').value;
 
+        var currentFilter = "";
+
+        for (var a = 0; a < filterCount; a++) {
+            var checkbox = document.getElementsByName("checkbox")[a];
+            if (checkbox.checked) {
+                var activeFilter = checkbox.id;
+                console.log(activeFilter);
+                currentFilter += '{"term" : {"_type" : "' + activeFilter + '"}}, ';
+            }
+        }
+
+        currentFilter = currentFilter.substring(0, currentFilter.length - 2);
+        console.log(currentFilter);
+        search();
+    }
+
+    // TODO Momentan dublizierte Methode um konflikte mit der Standart-Suche zu umgehen
+    function searchAndFilter(currentFilter) {
+        var filterRequest = document.getElementById('searchbar').value;
+        fetch('http://82.165.156.193:9200/live/_search',
+                {
+                    method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(
+                            {
+                                "query": {
+                                    "query": {
+                                        "bool": {
+                                            "should": {
+                                                "multi_match": {
+                                                    "query": filterRequest,
+                                                    "fields": ["title", "text", "author"]
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "filtered": {
+                                    "filter": {
+                                        "bool": {
+                                            "should": [
+                                                currentFilter
+                                            ]
+                                        }
+                                    }
+                                }
+                            })
+                }
+        ).then(function (response) {
+                    return response.json()
+                }).then(function (json) {
+                    var data = json['hits']['hits'];
+                    tableCreate(data);
+                    console.log(data);
+                    console.log(data[0]['_source']['title']);
+                })
+
+    }
+
+    function search() {
         var filterRequest = document.getElementById('searchbar').value;
         fetch('http://82.165.156.193:9200/live/_search',
                 {
@@ -148,7 +217,7 @@
                             {
                                 "query": {
                                     "bool": {
-                                        "filter": { "term": { "_type": "reddit_submission" || "reddit_comment"}},
+                                        "filter": {"term": {"_type": "reddit_submission" || "reddit_comment"}},
                                         "should": {
                                             "multi_match": {
                                                 "query": filterRequest,
@@ -160,13 +229,13 @@
                             })
                 }
         ).then(function (response) {
-            return response.json()
-        }).then(function (json) {
-            var data = json['hits']['hits'];
-            tableCreate(data);
-            console.log(data);
-            console.log(data[0]['_source']['title']);
-        })
+                    return response.json()
+                }).then(function (json) {
+                    var data = json['hits']['hits'];
+                    tableCreate(data);
+                    console.log(data);
+                    console.log(data[0]['_source']['title']);
+                })
     }
 
     function tableCreate(data) {
@@ -174,13 +243,14 @@
             return $('<tr>').append([
                 $('<td>', {text: data._source.ups}),
                 $('<td>').append($('<a>', {href: data._source.linkUrl, text: data._source.title})),
-                    // Datum TODO Converter
+                // Datum TODO Converter
                 $('<td>', {text: data._source.created}),
                 $('<td>', {text: data._source.source}),
                 $('<td>', {text: Math.floor((Math.random() * 10) + 1)})
             ]);
         }));
     }
+
 </script>
 </body>
 </html>
