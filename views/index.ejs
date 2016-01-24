@@ -145,8 +145,10 @@
         for (var a = 0; a < filterCount; a++) {
             var checkbox = document.getElementsByName("checkbox")[a];
             if (checkbox.checked) {
+                // Der aktive Filter wird aus der checkbox-ID geholt, die dem Filternamen entspricht
                 var activeFilter = checkbox.id;
                 console.log(activeFilter);
+                // Hier wird die Suchanfrage zusammengesetzt
                 currentFilter += '{"term" : {"_type" : "' + activeFilter + '"}}, ';
             }
         }
@@ -184,12 +186,14 @@
                                     "filter": {
                                         "bool": {
                                             "should": [
+                                                    // Hier werden die Filter als Variable übergeben
+                                                    // TODO bisher unklar ob es auf diese Weise Funktionieren kann
                                                 currentFilter
                                             ]
                                         }
                                     }
                                 }
-                            })
+                            }
                 }
         ).then(function (response) {
                     return response.json()
