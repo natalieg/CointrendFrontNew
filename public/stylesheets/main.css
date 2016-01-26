@@ -65,6 +65,16 @@
     margin-left: 5%;
 }
 
+#cloud {
+    width: 500px;
+    height: 500px;
+}
+
+#cloud span:hover{
+    font-weight : bold;
+}
+
+
 
 .container-fluid {
     height: 80px;

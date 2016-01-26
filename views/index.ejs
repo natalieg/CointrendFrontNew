@@ -26,6 +26,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
             integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
             crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqcloud/1.0.4/jqcloud-1.0.4.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqcloud/1.0.4/jqcloud.css">
 </head>
 <body>
 
@@ -98,11 +100,11 @@
 
                 </div>
             </div>
-            <div class="resultTableDiv">
+            <div class="resultTableDiv" id="resultspace">
                 <table id="myTable" class="tablesorter-ice">
                     <thead>
                     <tr>
-                        <th>Rating</th>
+                        <th>Rank</th>
                         <th>Article</th>
                         <th>Timestamp</th>
                         <th>Source</th>
@@ -114,18 +116,18 @@
                     </tbody>
                 </table>
             </div>
+            <div id="cloud"></div>
         </div>
         <div class="rightContent col-md-2">
             <h3 class="text-center middleHeadline">New Events</h3>
+            <table id="Top10" >
+                <tbody id="eventbody">
 
+                </tbody>
 
-            //*** Aufruf der Event-Funktion, als komplette Tabelle ohne eigene Zeilen (mit Zeilen id für
-            href-Verlinkung)
-
-            <table id="ETable" onload="Event()">
             </table>
 
-            //***
+
 
         </div>
     </div>
@@ -135,6 +137,68 @@
 
 
 <script>
+    $(document).ready(Builder());
+
+    function Builder()
+    {
+
+        fetch('http://82.165.156.193:9200/wordcloud/_search',
+                {
+                    method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(
+                            {
+                                "query": {"match_all": {}},
+                                "sort": {
+                                    "count": {"order": "desc"},
+                                    "date": {"order": "desc"}
+                                },
+                                "from": 0, "size": 25
+                            })
+                }).then(function (response) {
+            return response.json()
+        }).then(function (json) {
+            var data = json['hits']['hits'];
+            console.log(data);
+            console.log("where is events?");
+            createWordCloud(data);
+        });
+
+        fetch('http://82.165.156.193:9200/live/_search',
+                {
+                    method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(
+                            {
+                                "query": {
+                                    "bool": {
+                                        "must": [
+                                            {"term": {"sentimentProcessed": true}},
+                                            {"term": {"rankProcessed": true}},
+                                            {"term": {"wordCloudProcessed": true}},
+                                            {"terms": {"_type": ["reddit_submission"]}}
+                                        ]
+                                    }
+                                },
+                                "sort": {"currentRank": {"order": "desc"}},
+                                "from": 0, "size": 10
+                            })
+                }).then(function (response) {
+            return response.json()
+        }).then(function (json) {
+            var data = json['hits']['hits'];
+            console.log(data);
+            console.log("where is events?");
+            eventTable(data);
+        })
+
+    }
 
     function filter() {
         // Number of the possible Filters
@@ -200,16 +264,66 @@
 
     function tableCreate(data) {
         $('#tablebody').empty().append(data.map(function (data) {
+            var color = "#FF9933"
+            if(data._source.sentiment > 0)
+                {
+                    color = "#00CC00"
+                }
+            else if(data._source.sentiment < 0)
+            {
+                color = "#CC0000"
+            }
             return $('<tr>').append([
-                $('<td>', {text: data._source.ups}),
+                $('<td>', {text: data._source.rank}),
                 $('<td>').append($('<a>', {href: data._source.linkUrl, text: data._source.title})),
                 // Datum TODO Converter
                 $('<td>', {text: data._source.created}),
                 $('<td>', {text: data._source.source}),
-                $('<td>', {text: Math.floor((Math.random() * 10) + 1)})
-            ]);
+                $('<td>', {text: data._source.sentiment})
+            ]).css("background-color", color);
+
+
         }));
     }
+
+    function eventTable(data) {
+        $('#eventbody').append(data.map(function (data) {
+            var color = "#FF9933"
+            if(data._source.sentiment > 0)
+            {
+                color = "#00CC00"
+            }
+            else if(data._source.sentiment < 0)
+            {
+                color = "#CC0000"
+            }
+            return $('<tr>').append([
+                $('<td>').append($('<a>', {href: data._source.linkUrl, text: data._source.title}))
+            ]).css("background-color", color);
+
+
+        }));
+    }
+
+    function createWordCloud(data) {
+        var handleSearchForName = function (name) {
+            return function (){
+                search(name);
+                $('#searchbar').val(name)
+            };
+        }
+
+        $('#cloud').jQCloud(
+                data.map(function (data) {
+                    return {
+                        text: data._source.word,
+                        weight: data._source.count,
+                        handlers: {click: handleSearchForName(data._source.word)}
+                };
+                })
+        );
+    }
+
 
 </script>
 </body>
