@@ -26,6 +26,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
             integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
             crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqcloud/1.0.4/jqcloud-1.0.4.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqcloud/1.0.4/jqcloud.css">
 </head>
 <body>
 
@@ -98,7 +100,7 @@
 
                 </div>
             </div>
-            <div class="resultTableDiv">
+            <div class="resultTableDiv" id="resultspace">
                 <table id="myTable" class="tablesorter-ice">
                     <thead>
                     <tr>
@@ -114,6 +116,7 @@
                     </tbody>
                 </table>
             </div>
+            <div id="cloud"></div>
         </div>
         <div class="rightContent col-md-2">
             <h3 class="text-center middleHeadline">New Events</h3>
@@ -134,9 +137,36 @@
 
 
 <script>
-    $(document).ready(Toplist());
+    $(document).ready(Builder());
 
-    function Toplist(){
+    function Builder()
+    {
+
+        fetch('http://82.165.156.193:9200/wordcloud/_search',
+                {
+                    method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(
+                            {
+                                "query": {"match_all": {}},
+                                "sort": {
+                                    "count": {"order": "desc"},
+                                    "date": {"order": "desc"}
+                                },
+                                "from": 0, "size": 25
+                            })
+                }).then(function (response) {
+            return response.json()
+        }).then(function (json) {
+            var data = json['hits']['hits'];
+            console.log(data);
+            console.log("where is events?");
+            createWordCloud(data);
+        });
+
         fetch('http://82.165.156.193:9200/live/_search',
                 {
                     method: 'post',
@@ -160,13 +190,14 @@
                                 "from": 0, "size": 10
                             })
                 }).then(function (response) {
-                        return response.json()
-                    }).then(function (json) {
-                        var data = json['hits']['hits'];
-                         console.log(data);
-                        console.log("where is events?");
-                        eventTable(data);
+            return response.json()
+        }).then(function (json) {
+            var data = json['hits']['hits'];
+            console.log(data);
+            console.log("where is events?");
+            eventTable(data);
         })
+
     }
 
     function filter() {
@@ -314,6 +345,25 @@
 
 
         }));
+    }
+
+    function createWordCloud(data) {
+        var handleSearchForName = function (name) {
+            return function (){
+                search(name);
+                $('#searchbar').val(name)
+            };
+        }
+
+        $('#cloud').jQCloud(
+                data.map(function (data) {
+                    return {
+                        text: data._source.word,
+                        weight: data._source.count,
+                        handlers: {click: handleSearchForName(data._source.word)}
+                };
+                })
+        );
     }
 
 
