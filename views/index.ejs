@@ -91,7 +91,7 @@
             <div id="middleContent" style="text-align: center">
                 <div class="searchline">
                     <div class="searchbar" id="searchId">
-                        <form id="search" action="javascript:search();">
+                        <form id="search" action="javascript:filter();">
                             <input id="searchbar" type="text" placeholder="Search">
                         </form>
                     </div>
@@ -149,13 +149,14 @@
                 var activeFilter = checkbox.id;
                 console.log(activeFilter);
                 // Hier wird die Suchanfrage zusammengesetzt
-                currentFilter += '{"term" : {"_type" : "' + activeFilter + '"}}, ';
+                currentFilter += '"' + activeFilter + '", ';
             }
         }
 
+
         currentFilter = currentFilter.substring(0, currentFilter.length - 2);
         console.log(currentFilter);
-        search();
+        searchAndFilter(currentFilter);
     }
 
     // TODO Momentan dublizierte Methode um konflikte mit der Standart-Suche zu umgehen
@@ -163,72 +164,28 @@
         var filterRequest = document.getElementById('searchbar').value;
         fetch('http://82.165.156.193:9200/live/_search',
                 {
-                    method: 'post',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(
-                            {
-                                "query": {
-                                    "query": {
-                                        "bool": {
-                                            "should": {
-                                                "multi_match": {
-                                                    "query": filterRequest,
-                                                    "fields": ["title", "text", "author"]
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "filtered": {
-                                    "filter": {
-                                        "bool": {
-                                            "should": [
-                                                    // Hier werden die Filter als Variable übergeben
-                                                    // TODO bisher unklar ob es auf diese Weise Funktionieren kann
-                                                currentFilter
-                                            ]
-                                        }
-                                    }
-                                }
-                            }
-                }
-        ).then(function (response) {
-                    return response.json()
-                }).then(function (json) {
-                    var data = json['hits']['hits'];
-                    tableCreate(data);
-                    console.log(data);
-                    console.log(data[0]['_source']['title']);
-                })
-
-    }
-
-    function search() {
-        var filterRequest = document.getElementById('searchbar').value;
-        fetch('http://82.165.156.193:9200/live/_search',
-                {
-                    method: 'post',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(
-                            {
-                                "query": {
-                                    "bool": {
-                                        "filter": {"term": {"_type": "reddit_submission" || "reddit_comment"}},
-                                        "should": {
-                                            "multi_match": {
-                                                "query": filterRequest,
-                                                "fields": ["title", "text", "author"]
-                                            }
-                                        }
-                                    }
-                                }
-                            })
+                    "query": {
+                        "bool": {
+                            "must": [
+                                /* Stellt sicher das nur analysierte Einträge auftauchen */
+                                {"term": {"sentimentProcessed": true}},
+                                {"term": {"rankProcessed": true}},
+                                {"term": {"wordCloudProcessed": true}},
+                                /* ... hier die Filter */
+                                {"terms" : {"_type" :[currentFilter]}}
+                            ],
+                            "should": [
+                                /* Hier Suchwörter oder andere sachen suchen die nicht 100% matchen müssen,a ber die Relevanz erhöhen */
+                                {"multi_match": {"query": filterRequest, "fields": ["title", "text", "author"]}},
+                                /* Folgende Einträge bitte mit benutzten, kommt von TextMining. */
+                                {"range": {"rank": {"gt": 8, "lte": 10, "boost": 2.5}}},
+                                {"range": {"rank": {"gt": 6, "lte": 8, "boost": 1.8}}},
+                                {"range": {"rank": {"gt": 4, "lte": 6, "boost": 1.5}}},
+                                {"range": {"rank": {"gt": 2, "lte": 5, "boost": 1.2}}},
+                                {"range": {"rank": {"gt": 0, "lte": 2, "boost": 1.0}}}
+                            ]
+                        }
+                    }
                 }
         ).then(function (response) {
                     return response.json()
@@ -239,6 +196,7 @@
                     console.log(data[0]['_source']['title']);
                 })
     }
+
 
     function tableCreate(data) {
         $('#tablebody').empty().append(data.map(function (data) {
