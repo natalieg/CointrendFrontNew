@@ -143,6 +143,8 @@ output {
 
 .eventTable #Top10 #eventbody tr td {
     padding: 5px;
+    border-bottom: solid #ffffff;
+    border-bottom-width: 2px;
 }
 
 

@@ -265,6 +265,7 @@
     function search() {
         $('#myTable').show();
         $('#tablebody').show();
+        $('#cloud').hide();
         var filterRequest = document.getElementById('searchbar').value;
         fetch('http://82.165.156.193:9200/live/_search',
                 {
