@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title></title>
     <link rel="stylesheet" href="stylesheets/main.css">
+    <link rel="stylesheet" href="stylesheets/jqcloud.css">
     <script type="text/javascript" src="javascripts/jquery-1.11.3.js"></script>
     <!-- choose a theme file -->
     <link rel="stylesheet" href="bower_components/tablesorter/dist/css/theme.ice.min.css">
@@ -27,7 +28,6 @@
             integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqcloud/1.0.4/jqcloud-1.0.4.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqcloud/1.0.4/jqcloud.css">
 </head>
 <body>
 
@@ -93,7 +93,7 @@
             <div id="middleContent" style="text-align: center">
                 <div class="searchline">
                     <div class="searchbar" id="searchId">
-                        <form id="search" action="javascript:filter();">
+                        <form id="search" action="javascript:search();">
                             <input id="searchbar" type="text" placeholder="Search">
                         </form>
                     </div>
@@ -120,15 +120,13 @@
         </div>
         <div class="rightContent col-md-2">
             <h3 class="text-center middleHeadline">New Events</h3>
-            <table id="Top10" >
-                <tbody id="eventbody">
 
-                </tbody>
-
-            </table>
-
-
-
+            <div class="eventTable">
+                <table id="Top10">
+                    <tbody id="eventbody">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -139,8 +137,7 @@
 <script>
     $(document).ready(Builder());
 
-    function Builder()
-    {
+    function Builder() {
 
         fetch('http://82.165.156.193:9200/wordcloud/_search',
                 {
@@ -159,13 +156,13 @@
                                 "from": 0, "size": 25
                             })
                 }).then(function (response) {
-            return response.json()
-        }).then(function (json) {
-            var data = json['hits']['hits'];
-            console.log(data);
-            console.log("where is events?");
-            createWordCloud(data);
-        });
+                    return response.json()
+                }).then(function (json) {
+                    var data = json['hits']['hits'];
+                    console.log(data);
+                    console.log("where is events?");
+                    createWordCloud(data);
+                });
 
         fetch('http://82.165.156.193:9200/live/_search',
                 {
@@ -190,13 +187,13 @@
                                 "from": 0, "size": 10
                             })
                 }).then(function (response) {
-            return response.json()
-        }).then(function (json) {
-            var data = json['hits']['hits'];
-            console.log(data);
-            console.log("where is events?");
-            eventTable(data);
-        })
+                    return response.json()
+                }).then(function (json) {
+                    var data = json['hits']['hits'];
+                    console.log(data);
+                    console.log("where is events?");
+                    eventTable(data);
+                })
 
     }
 
@@ -217,8 +214,12 @@
             }
         }
 
-
         currentFilter = currentFilter.substring(0, currentFilter.length - 2);
+
+        if (currentFilter.length == 0) {
+            currentFilter = '"reddit_comment", "reddit_submission"';
+        }
+
         console.log(currentFilter);
         searchAndFilter(currentFilter);
     }
@@ -236,7 +237,7 @@
                                 {"term": {"rankProcessed": true}},
                                 {"term": {"wordCloudProcessed": true}},
                                 /* ... hier die Filter */
-                                {"terms" : {"_type" :[currentFilter]}}
+                                {"terms": {"_type": [currentFilter]}}
                             ],
                             "should": [
                                 /* Hier Suchwörter oder andere sachen suchen die nicht 100% matchen müssen,a ber die Relevanz erhöhen */
@@ -261,17 +262,48 @@
                 })
     }
 
+    function search() {
+        var filterRequest = document.getElementById('searchbar').value;
+        fetch('http://82.165.156.193:9200/live/_search',
+                {
+                    method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(
+                            {
+                                "query": {
+                                    "bool": {
+                                        "filter": {"term": {"_type": "reddit_submission"}},
+                                        "should": {
+                                            "multi_match": {
+                                                "query": filterRequest,
+                                                "fields": ["title", "text", "author"]
+                                            }
+                                        }
+                                    }
+                                }
+                            })
+                }
+        ).then(function (response) {
+                    return response.json()
+                }).then(function (json) {
+                    var data = json['hits']['hits'];
+                    tableCreate(data);
+                    console.log(data);
+                    console.log(data[0]['_source']['title']);
+                })
+    }
 
     function tableCreate(data) {
         $('#tablebody').empty().append(data.map(function (data) {
-            var color = "#FF9933"
-            if(data._source.sentiment > 0)
-                {
-                    color = "#00CC00"
-                }
-            else if(data._source.sentiment < 0)
-            {
-                color = "#CC0000"
+            var color = "#FF9933";
+            if (data._source.sentiment > 0) {
+                color = "#9ed049"
+            }
+            else if (data._source.sentiment < 0) {
+                color = "#d0496a"
             }
             return $('<tr>').append([
                 $('<td>', {text: data._source.rank}),
@@ -288,14 +320,12 @@
 
     function eventTable(data) {
         $('#eventbody').append(data.map(function (data) {
-            var color = "#FF9933"
-            if(data._source.sentiment > 0)
-            {
-                color = "#00CC00"
+            var color = "#FF9933";
+            if (data._source.sentiment > 0) {
+                color = "#9ed049"
             }
-            else if(data._source.sentiment < 0)
-            {
-                color = "#CC0000"
+            else if (data._source.sentiment < 0) {
+                color = "#d0496a"
             }
             return $('<tr>').append([
                 $('<td>').append($('<a>', {href: data._source.linkUrl, text: data._source.title}))
@@ -307,11 +337,11 @@
 
     function createWordCloud(data) {
         var handleSearchForName = function (name) {
-            return function (){
+            return function () {
                 search(name);
                 $('#searchbar').val(name)
             };
-        }
+        };
 
         $('#cloud').jQCloud(
                 data.map(function (data) {
@@ -319,10 +349,28 @@
                         text: data._source.word,
                         weight: data._source.count,
                         handlers: {click: handleSearchForName(data._source.word)}
-                };
+                    };
                 })
         );
     }
+
+    function toggleWordCloudAndTable() {
+        $('#myTable').hide();
+        $('#cloud').click(function () {
+                    $('#cloud').hide();
+                    $('#myTable').show();
+                    $('#tablebody').show();
+                }
+        );
+        $('#searchbar').click(function () {
+            $('#myTable').hide();
+            $('#cloud').show();
+            $('#searchbar').val("");
+            $('#tablebody').hide();
+        })
+    }
+
+    $(document).ready(toggleWordCloudAndTable());
 
 
 </script>

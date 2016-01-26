@@ -1,4 +1,11 @@
 
+
+a {
+    color: #2c2a2a !important;
+    font-weight: bold;
+    text-decoration: none;
+}
+
 /* LOGO //////////////////////////////////////////////////////////////////////////////////////////////////////*/
 
 .logo {
@@ -123,6 +130,21 @@ output {
 .rightContent {
     margin-top: 0%;
 }
+
+.eventTable {
+    height: 543px !important;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    font-size: 12px;
+    font-weight: normal;
+    border-radius: 5px;
+}
+
+.eventTable #Top10 #eventbody tr td {
+    padding: 5px;
+}
+
 
 /* FILTER //////////////////////////////////////////////////////////////////////////////*/
 
